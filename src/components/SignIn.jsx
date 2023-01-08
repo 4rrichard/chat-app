@@ -9,15 +9,20 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 
 import GoogleButton from "react-google-button";
+import { auth } from "../firebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { GoogleAuthProvider, signInWithRedirect } from "@firebase/auth";
+import { Button, Divider } from "@mui/material";
 
 const style = {
   boxContainer: {
     width: "100vw",
-    height: "100vh",
+    height: "80vh",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     flexWrap: "wrap",
+    backgroundColor: "grey",
   },
   inputContainer: {
     padding: "40px",
@@ -25,10 +30,12 @@ const style = {
     flexDirection: "column",
     border: "solid 1px lightGrey",
     borderRadius: "5px",
+    backgroundColor: "white",
   },
 };
 
 export const SignIn = () => {
+  const [user] = useAuthState(auth);
   const [values, setValues] = useState({
     amount: "",
     password: "",
@@ -36,6 +43,13 @@ export const SignIn = () => {
     weightRange: "",
     showPassword: false,
   });
+
+  const googleSignIn = () => {
+    const provider = new GoogleAuthProvider();
+    signInWithRedirect(auth, provider);
+  };
+
+  console.log(user);
 
   const handleChange = (key) => (event) => {
     setValues({ ...values, [key]: event.target.value });
@@ -85,8 +99,12 @@ export const SignIn = () => {
             }
             label="Password"
           />
+          <Button variant="contained" sx={{ marginTop: "20px" }}>
+            Sign In
+          </Button>
         </FormControl>
-        <GoogleButton />
+        <Divider sx={{ marginBottom: "20px" }}>OR</Divider>
+        <GoogleButton onClick={googleSignIn} type="light" />
       </Box>
     </Box>
   );
