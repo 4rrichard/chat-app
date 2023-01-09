@@ -1,4 +1,6 @@
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import React, { useState } from "react";
+import { auth } from "../firebase";
 
 import Box from "@mui/material/Box";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -8,17 +10,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
-import { Button, Divider } from "@mui/material";
-
-import GoogleButton from "react-google-button";
-import { auth } from "../firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
-import {
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithRedirect,
-} from "@firebase/auth";
-import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@mui/material";
 
 const style = {
   boxContainer: {
@@ -41,38 +33,34 @@ const style = {
   },
 };
 
-export const SignIn = () => {
+const Register = () => {
+  const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [user] = useAuthState(auth);
-
   const [values, setValues] = useState({
     password: "",
     showPassword: false,
   });
 
-  const navigate = useNavigate();
-
-  const googleSignIn = () => {
-    const provider = new GoogleAuthProvider();
-    signInWithRedirect(auth, provider).then(() => {
-      navigate("/chat");
-    });
-  };
-
-  const emailSignIn = () => {
-    signInWithEmailAndPassword(auth, email, password)
+  const registration = () => {
+    createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
         console.log(user);
-        navigate("/chat");
+        updateProfile(auth.currentUser, {
+          displayName: displayName,
+        });
+        alert("Successfully created an account");
+
         // ...
       })
       .catch((error) => {
         const errorCode = error.code;
-        // const errorMessage = error.message;
+        //   const errorMessage = error.message;
         console.log(errorCode);
+
+        // ..
       });
   };
 
@@ -97,10 +85,18 @@ export const SignIn = () => {
         <FormControl
           sx={{ m: 1, width: "initial" }}
           variant="outlined"
+          onChange={(e) => setDisplayName(e.target.value)}
+        >
+          <InputLabel htmlFor="my-input">Display Name</InputLabel>
+          <OutlinedInput id="component-outlined" label="Display Name" />
+        </FormControl>
+        <FormControl
+          sx={{ m: 1, width: "initial" }}
+          variant="outlined"
           onChange={(e) => setEmail(e.target.value)}
         >
           <InputLabel htmlFor="my-input">Email</InputLabel>
-          <OutlinedInput id="component-outlined" label="Email" />
+          <OutlinedInput id="component-outlined email" label="Email" />
         </FormControl>
         <FormControl
           sx={{ m: 1, width: "initial", marginBottom: "10px" }}
@@ -132,32 +128,14 @@ export const SignIn = () => {
           <Button
             variant="contained"
             sx={{ marginTop: "20px" }}
-            onClick={emailSignIn}
+            onClick={registration}
           >
-            Sign In
+            Register
           </Button>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: "15px",
-            }}
-          >
-            <Button size="small" variant="text">
-              Forgot password?
-            </Button>
-            <Button component={Link} to="/register" size="small" variant="text">
-              Register
-            </Button>
-          </Box>
         </FormControl>
-        <Divider sx={{ marginBottom: "20px" }}>OR</Divider>
-        <GoogleButton
-          onClick={googleSignIn}
-          type="light"
-          style={{ margin: "auto" }}
-        />
       </Box>
     </Box>
   );
 };
+
+export default Register;
