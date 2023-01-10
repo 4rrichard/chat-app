@@ -1,9 +1,12 @@
 import { Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import React from "react";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+
 import Logout from "./Logout";
+import Message from "./Message";
 import SendMessage from "./SendMessage";
 
 const style = {
@@ -30,14 +33,32 @@ const style = {
 
 const Chat = () => {
   const [user] = useAuthState(auth);
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    const q = query(collection(db, "messages"), orderBy("timestamp"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let messages = [];
+      querySnapshot.forEach((doc) => {
+        messages.push({ ...doc.data(), id: doc.id });
+      });
+      setMessages(messages);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  console.log(messages);
 
   return (
     <Box sx={style.fullChat}>
-      <Typography variant="h1">Hello {user.displayName}</Typography>
+      <Typography variant="h1">Hello {user?.displayName}</Typography>
 
       <Logout />
-
       <Box sx={style.chatContainer}>
+        {messages &&
+          messages.map((message) => (
+            <Message key={message.id} message={message} />
+          ))}
         <SendMessage />
       </Box>
     </Box>
