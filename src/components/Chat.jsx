@@ -5,8 +5,8 @@ import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../firebase";
 
-import Logout from "./Logout";
 import Message from "./Message";
+import NavBar from "./NavBar";
 import SendMessage from "./SendMessage";
 
 const style = {
@@ -22,6 +22,7 @@ const style = {
   chatContainer: {
     width: "600px",
     height: "700px",
+    marginTop: "80px",
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-end",
@@ -33,6 +34,7 @@ const style = {
 
 const Chat = () => {
   const [user] = useAuthState(auth);
+
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
@@ -47,13 +49,10 @@ const Chat = () => {
     return () => unsubscribe();
   }, []);
 
-  console.log(messages);
-
   return (
     <Box sx={style.fullChat}>
-      <Typography variant="h1">Hello {user?.displayName}</Typography>
+      <NavBar />
 
-      <Logout />
       <Box sx={style.chatContainer}>
         {messages &&
           messages.map((message) => (

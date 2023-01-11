@@ -64,8 +64,7 @@ export const SignIn = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in
-        const user = userCredential.user;
-        console.log(user);
+        // const user = userCredential.user;
         navigate("/chat");
         // ...
       })
@@ -129,6 +128,7 @@ export const SignIn = () => {
             }
             label="Password"
           />
+
           <Button
             variant="contained"
             sx={{ marginTop: "20px" }}

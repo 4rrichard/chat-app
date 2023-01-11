@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { Box, Button, InputBase } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import OutlinedInput from "@mui/material/OutlinedInput";
+
 import { auth, db } from "../firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
@@ -25,16 +27,20 @@ const SendMessage = () => {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <InputBase
-        sx={{ ml: 1, flex: 1 }}
+    <Box component="form" sx={{ display: "flex" }}>
+      <OutlinedInput
         placeholder="Type your message"
-        inputProps={{ "aria-label": "Type your message" }}
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        fullWidth
       />
 
-      <Button variant="contained" endIcon={<SendIcon />} onClick={sendMessage}>
+      <Button
+        type="submit"
+        variant="contained"
+        endIcon={<SendIcon />}
+        onClick={sendMessage}
+      >
         Send
       </Button>
     </Box>
