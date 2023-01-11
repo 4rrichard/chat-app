@@ -1,5 +1,6 @@
 import { Box } from "@mui/system";
 import React from "react";
+import { auth } from "../firebase";
 
 const style = {
   message: {
@@ -14,6 +15,7 @@ const style = {
 };
 
 const Message = ({ message }) => {
+  console.log(message, auth.currentUser);
   return <Box sx={style.message}>{message.text}</Box>;
 };
 

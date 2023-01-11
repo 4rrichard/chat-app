@@ -58,9 +58,7 @@ export const SignIn = () => {
   const googleSignIn = () => {
     setLoading(true);
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider).then(() => {
-      navigate("/chat");
-    });
+    signInWithPopup(auth, provider);
   };
 
   const emailSignIn = () => {

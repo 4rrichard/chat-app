@@ -1,6 +1,6 @@
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import React, { useState } from "react";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 
 import Box from "@mui/material/Box";
 import OutlinedInput from "@mui/material/OutlinedInput";
@@ -11,6 +11,9 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import { Button } from "@mui/material";
+import Modal from "@mui/material/Modal";
+import SuccessfulReg from "./SuccessfulReg";
+import { addDoc, collection } from "firebase/firestore";
 
 const style = {
   boxContainer: {
@@ -41,6 +44,17 @@ const Register = () => {
     password: "",
     showPassword: false,
   });
+  const [openModal, setOpenModal] = useState(false);
+  const handleOpen = () => setOpenModal(true);
+  const handleClose = () => setOpenModal(false);
+
+  const saveUser = async (uid) => {
+    await addDoc(collection(db, "users"), {
+      name: displayName,
+      email: email,
+      uid: uid,
+    });
+  };
 
   const registration = () => {
     createUserWithEmailAndPassword(auth, email, password)
@@ -51,7 +65,8 @@ const Register = () => {
         updateProfile(auth.currentUser, {
           displayName: displayName,
         });
-        alert("Successfully created an account");
+        handleOpen();
+        saveUser(user.uid);
 
         // ...
       })
@@ -133,6 +148,16 @@ const Register = () => {
             Register
           </Button>
         </FormControl>
+        <Modal
+          open={openModal}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box>
+            <SuccessfulReg />
+          </Box>
+        </Modal>
       </Box>
     </Box>
   );
