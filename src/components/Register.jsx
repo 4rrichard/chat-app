@@ -13,7 +13,7 @@ import IconButton from "@mui/material/IconButton";
 import { Button } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import SuccessfulReg from "./SuccessfulReg";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 
 const style = {
   boxContainer: {
@@ -48,27 +48,23 @@ const Register = () => {
   const handleOpen = () => setOpenModal(true);
   const handleClose = () => setOpenModal(false);
 
-  const saveUser = async (uid) => {
-    await addDoc(collection(db, "users"), {
-      name: displayName,
-      email: email,
-      uid: uid,
-    });
-  };
-
   const registration = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed in
         const user = userCredential.user;
-        console.log(user);
+
+        const docRef = doc(db, "users", user.uid);
+        setDoc(docRef, {
+          name: displayName,
+          email: email,
+          uid: user.uid,
+        });
+
         updateProfile(auth.currentUser, {
           displayName: displayName,
         });
-        handleOpen();
-        saveUser(user.uid);
 
-        // ...
+        handleOpen();
       })
       .catch((error) => {
         const errorCode = error.code;

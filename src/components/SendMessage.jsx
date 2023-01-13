@@ -27,7 +27,7 @@ const SendMessage = () => {
   };
 
   return (
-    <Box component="form" sx={{ display: "flex" }}>
+    <Box component="form" sx={{ display: "inline-flex", width: "100%" }}>
       <OutlinedInput
         placeholder="Type your message"
         value={input}

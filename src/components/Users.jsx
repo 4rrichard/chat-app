@@ -4,16 +4,16 @@ import React from "react";
 import { auth } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 
-const Users = ({ users }) => {
-  const [currentUser] = useAuthState(auth);
-  console.log(users);
+const Users = ({ currentUser }) => {
+  const [currentProfile] = useAuthState(auth);
   return (
     <Box>
-      {users.map((user, id) => {
+      {currentUser[0]?.friends.map((friend, id) => {
+        console.log(friend);
         return (
-          currentUser.uid !== user.uid && (
-            <Typography key={id} variant="h4">
-              {user.name}
+          currentProfile.uid !== friend.uid && (
+            <Typography key={id} variant="h5">
+              {friend.name}
             </Typography>
           )
         );

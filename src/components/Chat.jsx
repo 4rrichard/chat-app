@@ -1,11 +1,14 @@
-import { Typography } from "@mui/material";
+import { Button, Divider, OutlinedInput, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import {
+  arrayUnion,
   collection,
+  doc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
-  where,
+  updateDoc,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -28,11 +31,10 @@ const style = {
     backgroundColor: "grey",
   },
   chatContainer: {
-    width: "600px",
-    height: "700px",
+    width: "70%",
+    height: "70%",
     marginTop: "80px",
     display: "flex",
-    flexDirection: "column",
     justifyContent: "flex-end",
     border: "solid 1px lightGrey",
     borderRadius: "5px",
@@ -42,9 +44,11 @@ const style = {
 
 const Chat = () => {
   const [user] = useAuthState(auth);
-  const [users, setUsers] = useState([]);
+  const [currentUser, setCurrentUser] = useState([]);
+  const [user1, setUser1] = useState("");
 
   const [messages, setMessages] = useState([]);
+  const [userSearch, setUserSearch] = useState("");
 
   useEffect(() => {
     const qMessage = query(collection(db, "messages"), orderBy("timestamp"));
@@ -61,28 +65,69 @@ const Chat = () => {
   useEffect(() => {
     const qUser = query(collection(db, "users"));
     const unsubUser = onSnapshot(qUser, (querySnapshot) => {
-      let users = [];
+      let friends = [];
 
       querySnapshot.forEach((doc) => {
-        users.push(doc.data());
+        if (auth.currentUser.uid === doc.data().uid) {
+          friends.push(doc.data());
+        }
       });
 
-      setUsers(users);
+      setCurrentUser(friends);
     });
     return () => unsubUser();
   }, []);
 
+  const findUser = (e) => {
+    e.preventDefault();
+    const qUser = query(collection(db, "users"));
+
+    // console.log(doc(db, "users", "WdJyHfAeHO7WehJoFuAR"));
+    const unsubUser = onSnapshot(qUser, (querySnapshot) => {
+      querySnapshot.forEach((docSnapshot) => {
+        if (userSearch === docSnapshot.data().email) {
+          const currentUser = doc(db, "users", auth.currentUser.uid);
+          updateDoc(currentUser, {
+            friends: arrayUnion(...[docSnapshot.data()]),
+          });
+        }
+      });
+    });
+
+    setUserSearch("");
+    return () => unsubUser();
+  };
+
   return (
     <Box sx={style.fullChat}>
       <NavBar />
-      <Users users={users} />
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <OutlinedInput
+          placeholder="Add User"
+          value={userSearch}
+          onChange={(e) => setUserSearch(e.target.value)}
+          sx={{ backgroundColor: "white" }}
+        />
+
+        <Button type="submit" variant="contained" onClick={findUser}>
+          Add
+        </Button>
+      </Box>
+
       <Box sx={style.chatContainer}>
+        <Box sx={{ padding: "30px" }}>
+          <Users currentUser={currentUser} />
+          <Typography>{user1}</Typography>
+        </Box>
+        <Divider orientation="vertical" flexItem />
         <Box
           sx={{
-            marginRight: "20px",
+            padding: "30px",
             display: "flex",
             flexDirection: "column",
+            justifyContent: "flex-end",
             alignItems: "flex-end",
+            flex: 1,
           }}
         >
           {messages &&
@@ -93,8 +138,8 @@ const Chat = () => {
                 )
               );
             })}
+          <SendMessage />
         </Box>
-        <SendMessage />
       </Box>
     </Box>
   );
