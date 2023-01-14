@@ -4,7 +4,6 @@ import {
   arrayUnion,
   collection,
   doc,
-  getDocs,
   onSnapshot,
   orderBy,
   query,
@@ -39,22 +38,42 @@ const style = {
     border: "solid 1px lightGrey",
     borderRadius: "5px",
     backgroundColor: "white",
+    overflow: "hidden",
+  },
+  messageArea: {
+    padding: "10px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+    flex: 1,
+  },
+  currentFriend: {
+    width: "100%",
+    height: "50px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#1976d2",
   },
 };
 
 const Chat = () => {
   const [user] = useAuthState(auth);
   const [currentUser, setCurrentUser] = useState([]);
-  const [user1, setUser1] = useState("");
 
+  const [currentChatPartner, setCurrentChatPartner] = useState("");
   const [messages, setMessages] = useState([]);
   const [userSearch, setUserSearch] = useState("");
+
+  console.log(messages);
 
   useEffect(() => {
     const qMessage = query(collection(db, "messages"), orderBy("timestamp"));
     const unsubMessage = onSnapshot(qMessage, (querySnapshot) => {
       let messages = [];
       querySnapshot.forEach((doc) => {
+        console.log(doc.data());
         messages.push({ ...doc.data(), id: doc.id });
       });
       setMessages(messages);
@@ -116,29 +135,31 @@ const Chat = () => {
 
       <Box sx={style.chatContainer}>
         <Box sx={{ padding: "30px" }}>
-          <Users currentUser={currentUser} />
-          <Typography>{user1}</Typography>
+          <Users
+            currentUser={currentUser}
+            setCurrentChatPartner={setCurrentChatPartner}
+          />
         </Box>
         <Divider orientation="vertical" flexItem />
-        <Box
-          sx={{
-            padding: "30px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-end",
-            alignItems: "flex-end",
-            flex: 1,
-          }}
-        >
-          {messages &&
-            messages.map((message) => {
-              return (
-                message.uid === user.uid && (
-                  <Message key={message.id} message={message} />
-                )
-              );
-            })}
-          <SendMessage />
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
+          {currentChatPartner.name && (
+            <Box sx={style.currentFriend}>
+              <Typography sx={{ color: "white", fontSize: "25px" }}>
+                {currentChatPartner.name}
+              </Typography>
+            </Box>
+          )}
+          <Box sx={style.messageArea}>
+            {messages &&
+              messages.map((message) => {
+                return (
+                  message.uid === user.uid && (
+                    <Message key={message.id} message={message} />
+                  )
+                );
+              })}
+            <SendMessage currentChatPartnerId={currentChatPartner.uid} />
+          </Box>
         </Box>
       </Box>
     </Box>

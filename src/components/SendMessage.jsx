@@ -6,7 +6,7 @@ import OutlinedInput from "@mui/material/OutlinedInput";
 import { auth, db } from "../firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
-const SendMessage = () => {
+const SendMessage = ({ currentChatPartnerId }) => {
   const [input, setInput] = useState("");
 
   const sendMessage = async (e) => {

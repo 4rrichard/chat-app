@@ -1,23 +1,41 @@
 import { Box } from "@mui/system";
-import { Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import React from "react";
-import { auth } from "../firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
 
-const Users = ({ currentUser }) => {
-  const [currentProfile] = useAuthState(auth);
+const style = {
+  friendContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+  },
+  friendBtn: {
+    justifyContent: "flex-start",
+    fontSize: "20px",
+  },
+};
+
+const Users = ({ currentUser, setCurrentChatPartner }) => {
+  const handleFriendClick = (friend) => {
+    setCurrentChatPartner(friend);
+  };
+
   return (
     <Box>
-      {currentUser[0]?.friends.map((friend, id) => {
-        console.log(friend);
-        return (
-          currentProfile.uid !== friend.uid && (
-            <Typography key={id} variant="h5">
+      <Typography variant="h4">Friends:</Typography>
+      <Box sx={style.friendContainer}>
+        {currentUser[0]?.friends.map((friend, id) => {
+          return (
+            <Button
+              key={id}
+              variant="text"
+              sx={style.friendBtn}
+              onClick={() => handleFriendClick(friend)}
+            >
               {friend.name}
-            </Typography>
-          )
-        );
-      })}
+            </Button>
+          );
+        })}
+      </Box>
     </Box>
   );
 };
