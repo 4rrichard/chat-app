@@ -73,21 +73,38 @@ const Chat = () => {
       collection(db, "messages", privateChatId, "chat"),
       orderBy("timestamp")
     );
-    const unsubMessage = onSnapshot(qMessage, (querySnapshot) => {
+    onSnapshot(qMessage, (querySnapshot) => {
       let messages = [];
       querySnapshot.forEach((doc) => {
         messages.push(doc.data());
       });
       setMessages(messages);
     });
-    return () => unsubMessage();
   }, [privateChatId]);
 
   useEffect(() => {
-    const qUser = query(collection(db, "users"));
-    const unsubUser = onSnapshot(qUser, (querySnapshot) => {
-      let friends = [];
+    const qReceivedM = query(collection(db, "messages"));
 
+    onSnapshot(qReceivedM, (querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        if (doc.id.includes(user.uid)) {
+          const qrm = query(collection(db, "messages", doc.id, "chat"));
+          onSnapshot(qrm, (querySnapshot) => {
+            let messages = [];
+            querySnapshot.forEach((doc) => {
+              messages.push(doc.data());
+            });
+            setMessages(messages);
+          });
+        }
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    const qUser = query(collection(db, "users"));
+    onSnapshot(qUser, (querySnapshot) => {
+      let friends = [];
       querySnapshot.forEach((doc) => {
         if (auth.currentUser.uid === doc.data().uid) {
           friends.push(doc.data());
@@ -96,15 +113,13 @@ const Chat = () => {
 
       setCurrentUser(friends);
     });
-    return () => unsubUser();
   }, []);
 
   const findUser = (e) => {
     e.preventDefault();
     const qUser = query(collection(db, "users"));
 
-    // console.log(doc(db, "users", "WdJyHfAeHO7WehJoFuAR"));
-    const unsubUser = onSnapshot(qUser, (querySnapshot) => {
+    onSnapshot(qUser, (querySnapshot) => {
       querySnapshot.forEach((docSnapshot) => {
         if (userSearch === docSnapshot.data().email) {
           const currentUser = doc(db, "users", auth.currentUser.uid);
@@ -116,7 +131,6 @@ const Chat = () => {
     });
 
     setUserSearch("");
-    return () => unsubUser();
   };
 
   return (

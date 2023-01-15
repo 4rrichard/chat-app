@@ -4,7 +4,13 @@ import SendIcon from "@mui/icons-material/Send";
 import OutlinedInput from "@mui/material/OutlinedInput";
 
 import { auth, db } from "../firebase";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
 
 const SendMessage = ({ currentChatPartnerId }) => {
   const [input, setInput] = useState("");
@@ -15,12 +21,17 @@ const SendMessage = ({ currentChatPartnerId }) => {
       return;
     }
 
-    const { uid, displayName } = auth.currentUser;
+    const { uid } = auth.currentUser;
     const privateChatId = uid + currentChatPartnerId;
+
+    await setDoc(doc(db, "messages", privateChatId), {
+      empty: "field",
+    });
     const docRef = collection(db, "messages", privateChatId, "chat");
     await addDoc(docRef, {
       text: input,
-      name: displayName,
+      from: uid,
+      to: currentChatPartnerId,
       privateChatId,
       timestamp: serverTimestamp(),
     });
