@@ -34,7 +34,7 @@ const style = {
     height: "70%",
     marginTop: "80px",
     display: "flex",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
     border: "solid 1px lightGrey",
     borderRadius: "5px",
     backgroundColor: "white",
@@ -141,7 +141,7 @@ const Chat = () => {
           />
         </Box>
         <Divider orientation="vertical" flexItem />
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", flex: "1" }}>
           {currentChatPartner.name && (
             <Box sx={style.currentFriend}>
               <Typography sx={{ color: "white", fontSize: "25px" }}>
