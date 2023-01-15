@@ -66,20 +66,22 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [userSearch, setUserSearch] = useState("");
 
-  console.log(messages);
+  const privateChatId = user.uid + currentChatPartner.uid;
 
   useEffect(() => {
-    const qMessage = query(collection(db, "messages"), orderBy("timestamp"));
+    const qMessage = query(
+      collection(db, "messages", privateChatId, "chat"),
+      orderBy("timestamp")
+    );
     const unsubMessage = onSnapshot(qMessage, (querySnapshot) => {
       let messages = [];
       querySnapshot.forEach((doc) => {
-        console.log(doc.data());
-        messages.push({ ...doc.data(), id: doc.id });
+        messages.push(doc.data());
       });
       setMessages(messages);
     });
     return () => unsubMessage();
-  }, []);
+  }, [privateChatId]);
 
   useEffect(() => {
     const qUser = query(collection(db, "users"));
@@ -151,12 +153,8 @@ const Chat = () => {
           )}
           <Box sx={style.messageArea}>
             {messages &&
-              messages.map((message) => {
-                return (
-                  message.uid === user.uid && (
-                    <Message key={message.id} message={message} />
-                  )
-                );
+              messages.map((message, id) => {
+                return <Message key={id} message={message} />;
               })}
             <SendMessage currentChatPartnerId={currentChatPartner.uid} />
           </Box>

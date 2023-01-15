@@ -16,11 +16,12 @@ const SendMessage = ({ currentChatPartnerId }) => {
     }
 
     const { uid, displayName } = auth.currentUser;
-    console.log(uid, displayName);
-    await addDoc(collection(db, "messages"), {
+    const privateChatId = uid + currentChatPartnerId;
+    const docRef = collection(db, "messages", privateChatId, "chat");
+    await addDoc(docRef, {
       text: input,
       name: displayName,
-      uid,
+      privateChatId,
       timestamp: serverTimestamp(),
     });
     setInput("");

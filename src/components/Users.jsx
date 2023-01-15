@@ -23,7 +23,7 @@ const Users = ({ currentUser, setCurrentChatPartner }) => {
     <Box>
       <Typography variant="h4">Friends:</Typography>
       <Box sx={style.friendContainer}>
-        {currentUser[0]?.friends.map((friend, id) => {
+        {currentUser[0]?.friends?.map((friend, id) => {
           return (
             <Button
               key={id}

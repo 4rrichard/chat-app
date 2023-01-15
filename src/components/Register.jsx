@@ -13,7 +13,7 @@ import IconButton from "@mui/material/IconButton";
 import { Button } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import SuccessfulReg from "./SuccessfulReg";
-import { addDoc, collection, doc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 
 const style = {
   boxContainer: {
