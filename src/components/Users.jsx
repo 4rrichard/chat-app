@@ -15,7 +15,8 @@ const style = {
 };
 
 const Users = ({ currentUser, setCurrentChatPartner }) => {
-  const handleFriendClick = (friend) => {
+  const handleFriendClick = (e, friend) => {
+    e.preventDefault();
     setCurrentChatPartner(friend);
   };
 
@@ -29,7 +30,7 @@ const Users = ({ currentUser, setCurrentChatPartner }) => {
               key={id}
               variant="text"
               sx={style.friendBtn}
-              onClick={() => handleFriendClick(friend)}
+              onClick={(e) => handleFriendClick(e, friend)}
             >
               {friend.name}
             </Button>

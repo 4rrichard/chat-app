@@ -15,23 +15,34 @@ const style = {
   },
   messageReceived: {
     width: "max-content",
-    margin: "0 0 10px 10px",
+    marginBottom: "10px",
     padding: "9px",
-    backgroundColor: "black",
+    backgroundColor: "#3E4042",
     borderRadius: "8px",
     color: "white",
     fontWeight: "semi-bold",
+  },
+  messageContainerReceived: {
+    width: "100%",
+    display: "flex",
+    justifyContent: "flex-start",
   },
 };
 
 const Message = ({ message }) => {
   const [user] = useAuthState(auth);
   return (
-    <Box
-      sx={message.to === user.uid ? style.messageReceived : style.messageSent}
-    >
-      {message.text}
-    </Box>
+    <>
+      <Box sx={message.to === user.uid ? style.messageContainerReceived : null}>
+        <Box
+          sx={
+            message.to === user.uid ? style.messageReceived : style.messageSent
+          }
+        >
+          {message.text}
+        </Box>
+      </Box>
+    </>
   );
 };
 

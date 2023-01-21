@@ -14,15 +14,14 @@ import {
 
 const SendMessage = ({ currentChatPartnerId }) => {
   const [input, setInput] = useState("");
+  const { uid } = auth.currentUser;
+  const privateChatId = uid + currentChatPartnerId;
 
   const sendMessage = async (e) => {
     e.preventDefault();
     if (input === "") {
       return;
     }
-
-    const { uid } = auth.currentUser;
-    const privateChatId = uid + currentChatPartnerId;
 
     await setDoc(doc(db, "messages", privateChatId), {
       empty: "field",

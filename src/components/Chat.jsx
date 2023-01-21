@@ -65,41 +65,47 @@ const Chat = () => {
   const [currentChatPartner, setCurrentChatPartner] = useState("");
   const [messages, setMessages] = useState([]);
   const [userSearch, setUserSearch] = useState("");
+  const [userNotFound, setUserNotFound] = useState("");
 
-  const privateChatId = user.uid + currentChatPartner.uid;
+  // const privateChatId = user.uid + currentChatPartner.uid;
 
-  useEffect(() => {
-    const qMessage = query(
-      collection(db, "messages", privateChatId, "chat"),
-      orderBy("timestamp")
-    );
-    onSnapshot(qMessage, (querySnapshot) => {
-      let messages = [];
-      querySnapshot.forEach((doc) => {
-        messages.push(doc.data());
-      });
-      setMessages(messages);
-    });
-  }, [privateChatId]);
+  // useEffect(() => {
+  //   const qMessage = query(
+  //     collection(db, "messages", privateChatId, "chat"),
+  //     orderBy("timestamp")
+  //   );
+  //   onSnapshot(qMessage, (querySnapshot) => {
+  //     let messages = [];
+  //     querySnapshot.forEach((doc) => {
+  //       messages.push(doc.data());
+  //     });
+  //     setMessages(messages);
+  //   });
+  // }, [privateChatId]);
 
   useEffect(() => {
     const qReceivedM = query(collection(db, "messages"));
 
     onSnapshot(qReceivedM, (querySnapshot) => {
+      let messagesR = [];
       querySnapshot.forEach((doc) => {
         if (doc.id.includes(user.uid)) {
-          const qrm = query(collection(db, "messages", doc.id, "chat"));
+          const qrm = query(
+            collection(db, "messages", doc.id, "chat"),
+            orderBy("timestamp")
+          );
           onSnapshot(qrm, (querySnapshot) => {
-            let messages = [];
             querySnapshot.forEach((doc) => {
-              messages.push(doc.data());
+              messagesR.push({ ...doc.data(), id: doc.id });
             });
-            setMessages(messages);
+            console.log(messagesR);
           });
         }
       });
+      setMessages(messagesR);
     });
-  }, []);
+  }, [user.uid]);
+  console.log(messages);
 
   useEffect(() => {
     const qUser = query(collection(db, "users"));
@@ -123,15 +129,24 @@ const Chat = () => {
       querySnapshot.forEach((docSnapshot) => {
         if (userSearch === docSnapshot.data().email) {
           const currentUser = doc(db, "users", auth.currentUser.uid);
+
           updateDoc(currentUser, {
             friends: arrayUnion(...[docSnapshot.data()]),
           });
+        } else {
+          setUserNotFound("this user does not exist!");
         }
       });
     });
 
     setUserSearch("");
   };
+
+  setTimeout(() => {
+    setUserNotFound("");
+  }, 3000);
+
+  // console.log(messages);
 
   return (
     <Box sx={style.fullChat}>
@@ -147,6 +162,7 @@ const Chat = () => {
         <Button type="submit" variant="contained" onClick={findUser}>
           Add
         </Button>
+        <Typography>{userNotFound}</Typography>
       </Box>
 
       <Box sx={style.chatContainer}>
@@ -167,10 +183,13 @@ const Chat = () => {
           )}
           <Box sx={style.messageArea}>
             {messages &&
+              currentChatPartner &&
               messages.map((message, id) => {
                 return <Message key={id} message={message} />;
               })}
-            <SendMessage currentChatPartnerId={currentChatPartner.uid} />
+            {currentChatPartner && (
+              <SendMessage currentChatPartnerId={currentChatPartner.uid} />
+            )}
           </Box>
         </Box>
       </Box>
