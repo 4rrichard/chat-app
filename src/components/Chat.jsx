@@ -32,6 +32,7 @@ const style = {
   chatContainer: {
     width: "70%",
     height: "70%",
+    maxWidth: "650px",
     marginTop: "80px",
     display: "flex",
     justifyContent: "space-between",
@@ -96,16 +97,15 @@ const Chat = () => {
           );
           onSnapshot(qrm, (querySnapshot) => {
             querySnapshot.forEach((doc) => {
+              console.log(doc.data().to);
               messagesR.push({ ...doc.data(), id: doc.id });
             });
-            console.log(messagesR);
           });
         }
       });
       setMessages(messagesR);
     });
   }, [user.uid]);
-  console.log(messages);
 
   useEffect(() => {
     const qUser = query(collection(db, "users"));
@@ -185,7 +185,11 @@ const Chat = () => {
             {messages &&
               currentChatPartner &&
               messages.map((message, id) => {
-                return <Message key={id} message={message} />;
+                return message.privateChatId.includes(
+                  currentChatPartner.uid
+                ) ? (
+                  <Message key={id} message={message} />
+                ) : null;
               })}
             {currentChatPartner && (
               <SendMessage currentChatPartnerId={currentChatPartner.uid} />

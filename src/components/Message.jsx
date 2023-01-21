@@ -1,3 +1,4 @@
+import { Tooltip } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -31,16 +32,27 @@ const style = {
 
 const Message = ({ message }) => {
   const [user] = useAuthState(auth);
+  const dateFormat = new Date(message.timestamp * 1000);
+  const dateSettings = { weekday: "long" };
+  const hours = dateFormat.getHours();
+  const minutes = dateFormat.getMinutes();
+  const fullTime = `${hours}:${minutes}`;
+  const dayName = dateFormat.toLocaleDateString("en-EN", dateSettings);
+
   return (
     <>
       <Box sx={message.to === user.uid ? style.messageContainerReceived : null}>
-        <Box
-          sx={
-            message.to === user.uid ? style.messageReceived : style.messageSent
-          }
-        >
-          {message.text}
-        </Box>
+        <Tooltip title={`${dayName} ${fullTime}`}>
+          <Box
+            sx={
+              message.to === user.uid
+                ? style.messageReceived
+                : style.messageSent
+            }
+          >
+            {message.text}
+          </Box>
+        </Tooltip>
       </Box>
     </>
   );
