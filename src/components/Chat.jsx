@@ -65,6 +65,7 @@ const Chat = () => {
 
   const [currentChatPartner, setCurrentChatPartner] = useState("");
   const [messages, setMessages] = useState([]);
+  const [sortedMessages, setSortedMessages] = useState([]);
   const [userSearch, setUserSearch] = useState("");
   const [userNotFound, setUserNotFound] = useState("");
 
@@ -89,6 +90,7 @@ const Chat = () => {
 
     onSnapshot(qReceivedM, (querySnapshot) => {
       let messagesR = [];
+
       querySnapshot.forEach((doc) => {
         if (doc.id.includes(user.uid)) {
           const qrm = query(
@@ -97,7 +99,6 @@ const Chat = () => {
           );
           onSnapshot(qrm, (querySnapshot) => {
             querySnapshot.forEach((doc) => {
-              console.log(doc.data().to);
               messagesR.push({ ...doc.data(), id: doc.id });
             });
           });
@@ -106,6 +107,14 @@ const Chat = () => {
       setMessages(messagesR);
     });
   }, [user.uid]);
+
+  useEffect(() => {
+    const sorted = messages.slice(0).sort((a, b) => {
+      return a.timestamp.toDate() - b.timestamp.toDate();
+    });
+    console.log(sorted);
+    setSortedMessages(sorted);
+  }, [messages, currentChatPartner]);
 
   useEffect(() => {
     const qUser = query(collection(db, "users"));
@@ -146,8 +155,6 @@ const Chat = () => {
     setUserNotFound("");
   }, 3000);
 
-  // console.log(messages);
-
   return (
     <Box sx={style.fullChat}>
       <NavBar />
@@ -182,9 +189,9 @@ const Chat = () => {
             </Box>
           )}
           <Box sx={style.messageArea}>
-            {messages &&
+            {sortedMessages &&
               currentChatPartner &&
-              messages.map((message, id) => {
+              sortedMessages.map((message, id) => {
                 return message.privateChatId.includes(
                   currentChatPartner.uid
                 ) ? (
