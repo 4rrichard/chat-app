@@ -118,7 +118,7 @@ const Message = ({ message, deleteMsg }) => {
               onClose={handleCloseMenu}
               PaperProps={{
                 style: {
-                  maxHeight: 48 * 4.5,
+                  maxHeight: 216,
                   width: "20ch",
                 },
               }}
