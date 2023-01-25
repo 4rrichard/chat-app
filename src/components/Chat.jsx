@@ -68,6 +68,7 @@ const Chat = () => {
   const [sortedMessages, setSortedMessages] = useState([]);
   const [userSearch, setUserSearch] = useState("");
   const [userNotFound, setUserNotFound] = useState("");
+  const [refresh, setRefresh] = useState(false);
 
   // const privateChatId = user.uid + currentChatPartner.uid;
 
@@ -106,13 +107,12 @@ const Chat = () => {
       });
       setMessages(messagesR);
     });
-  }, [user.uid]);
+  }, [user.uid, refresh]);
 
   useEffect(() => {
     const sorted = messages.slice(0).sort((a, b) => {
       return a.timestamp.toDate() - b.timestamp.toDate();
     });
-    console.log(sorted);
     setSortedMessages(sorted);
   }, [messages, currentChatPartner]);
 
@@ -199,7 +199,10 @@ const Chat = () => {
                 ) : null;
               })}
             {currentChatPartner && (
-              <SendMessage currentChatPartnerId={currentChatPartner.uid} />
+              <SendMessage
+                currentChatPartnerId={currentChatPartner.uid}
+                setRefresh={setRefresh}
+              />
             )}
           </Box>
         </Box>
