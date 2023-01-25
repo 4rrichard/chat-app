@@ -12,7 +12,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 
-const SendMessage = ({ currentChatPartnerId, setRefresh }) => {
+const SendMessage = ({ currentChatPartnerId, setRefresh, refresh }) => {
   const [input, setInput] = useState("");
   const { uid } = auth.currentUser;
   const privateChatId = uid + currentChatPartnerId;
@@ -35,7 +35,7 @@ const SendMessage = ({ currentChatPartnerId, setRefresh }) => {
       timestamp: serverTimestamp(),
     });
     setInput("");
-    setRefresh(true);
+    setRefresh(!refresh);
   };
 
   return (

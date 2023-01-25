@@ -3,11 +3,13 @@ import { Box } from "@mui/system";
 import {
   arrayUnion,
   collection,
+  deleteDoc,
   doc,
   onSnapshot,
   orderBy,
   query,
   updateDoc,
+  getDocs,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -155,6 +157,53 @@ const Chat = () => {
     setUserNotFound("");
   }, 3000);
 
+  const deleteMsg = async (messageText) => {
+    const querySnapshot = await getDocs(collection(db, "messages"));
+    querySnapshot.forEach((doc1) => {
+      if (doc1.id.includes(user.uid)) {
+        const qsnap = query(collection(db, "messages", doc1.id, "chat"));
+
+        onSnapshot(qsnap, (querySnap) => {
+          querySnap.forEach(async (doc2) => {
+            if (doc2.data().text === messageText) {
+              const qSelectedMsg = doc(
+                db,
+                "messages",
+                doc1.id,
+                "chat",
+                doc2.id
+              );
+
+              await deleteDoc(qSelectedMsg);
+            }
+          });
+        });
+        // qsnap.forEach(async (doc2) => {
+        //   if (doc2.data().text === messageText) {
+        //     const qSelectedMsg = doc(db, "messages", doc1.id, "chat", doc2.id);
+
+        //     await deleteDoc(qSelectedMsg);
+        //   }
+        // });
+      }
+    });
+    setRefresh(!refresh);
+  };
+
+  // onSnapshot(qUser, (querySnapshot) => {
+  //   querySnapshot.forEach((docSnapshot) => {
+  //     if (userSearch === docSnapshot.data().email) {
+  //       const currentUser = doc(db, "users", auth.currentUser.uid);
+
+  //       updateDoc(currentUser, {
+  //         friends: arrayUnion(...[docSnapshot.data()]),
+  //       });
+  //     } else {
+  //       setUserNotFound("this user does not exist!");
+  //     }
+  //   });
+  // });
+
   return (
     <Box sx={style.fullChat}>
       <NavBar />
@@ -195,13 +244,14 @@ const Chat = () => {
                 return message.privateChatId.includes(
                   currentChatPartner.uid
                 ) ? (
-                  <Message key={id} message={message} />
+                  <Message key={id} message={message} deleteMsg={deleteMsg} />
                 ) : null;
               })}
             {currentChatPartner && (
               <SendMessage
                 currentChatPartnerId={currentChatPartner.uid}
                 setRefresh={setRefresh}
+                refresh={refresh}
               />
             )}
           </Box>
